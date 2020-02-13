@@ -1,0 +1,63 @@
+function [T,eDS,L,Q] = experP(n)
+for i=1:16
+    [S, XX, H, D_X0, DS, vQ, RE, Conv, Conv2, Conv3, Conv4] = NM_QMEP_NG(n,10^(-i));
+    T{i}=Conv3;
+    eDS{i} = eig(-DS);
+    L{i}=Conv;
+    Q{i}=Conv2;
+end
+
+
+figure(1);
+hold off
+semilogy(T{1},'--ok')
+hold on
+semilogy(T{2},'--or')
+semilogy(T{3},'--ob')
+semilogy(T{4},'--og')
+semilogy(T{5},'--om')
+semilogy(T{6},'--^k')
+semilogy(T{7},'--^r')
+semilogy(T{8},'--^b')
+semilogy(T{9},'--^g')
+semilogy(T{10},'--^m')
+semilogy(T{11},'--vk')
+semilogy(T{12},'--vr')
+semilogy(T{13},'--vb')
+semilogy(T{14},'--vg')
+semilogy(T{15},'--vm')
+semilogy(T{16},'-dk')
+
+t1 = title('log$({||X_{i}-S||}~ /~ {||S||})$');
+set(t1,'Interpreter','Latex');
+xlabel('Iteration Number')
+l1=legend('$\delta = 10^{-1}$','$\delta = 10^{-2}$','$\delta = 10^{-3}$','$\delta = 10^{-4}$','$\delta = 10^{-5}$','$\delta = 10^{-6}$','$\delta = 10^{-7}$','$\delta = 10^{-8}$','$\delta = 10^{-9}$','$\delta = 10^{-10}$','$\delta = 10^{-11}$','$\delta = 10^{-12}$','$\delta = 10^{-13}$','$\delta = 10^{-14}$','$\delta = 10^{-15}$','$\delta = 10^{-16}$','Location','NorthEastOutside');
+set(l1,'Interpreter','Latex');
+
+figure(2);
+hold off
+plot(T{1},'--ok')
+hold on
+plot(T{2},'--or')
+plot(T{3},'--ob')
+plot(T{4},'--og')
+plot(T{5},'--om')
+plot(T{6},'--^k')
+plot(T{7},'--^r')
+plot(T{8},'--^b')
+plot(T{9},'--^g')
+plot(T{10},'--^m')
+plot(T{11},'--vk')
+plot(T{12},'--vr')
+plot(T{13},'--vb')
+plot(T{14},'--vg')
+plot(T{15},'--vm')
+plot(T{16},'-dk')
+
+t1 = title('log$({||X_{i}-S||}~ /~ {||S||})$');
+set(t1,'Interpreter','Latex');
+xlabel('Iteration Number')
+l1=legend('$\delta = 10^{-1}$','$\delta = 10^{-2}$','$\delta = 10^{-3}$','$\delta = 10^{-4}$','$\delta = 10^{-5}$','$\delta = 10^{-6}$','$\delta = 10^{-7}$','$\delta = 10^{-8}$','$\delta = 10^{-9}$','$\delta = 10^{-10}$','$\delta = 10^{-11}$','$\delta = 10^{-12}$','$\delta = 10^{-13}$','$\delta = 10^{-14}$','$\delta = 10^{-15}$','$\delta = 10^{-16}$','Location','NorthEastOutside');
+set(l1,'Interpreter','Latex');
+    
+end

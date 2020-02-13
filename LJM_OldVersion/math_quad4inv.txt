@@ -1,0 +1,79 @@
+quad4inv[nestmode_, mode_, ker11_, alpha_] := Module[
+    {type, J1, J2, J3, ker1max, ker1, ker2, ker4, ker41, r4inv, ker1inv, p1},
+
+    (* function [ker1inv] = quad4inv(nestmode, mode, ker11, alpha) ; *)
+    (* nestmode = 1 : (A'*A')^-1*A'  *)
+    (* mode = selectable as follows: *)
+    (* mode = 1 : inverse computation of distortion compensation with ker41 = ker4 - alpha * J3  *) 
+    (* mode = 0 : effective rank reduction with moderate ellimination process (alpha=0) *)
+    
+    type = 1 ; {* 1 ;   % test results: type=1 formula shows the best method of rank reduction with mode=0  *)
+    If[mode==2, type = 0 ;] ;
+    
+    {nn1, nn2} = Dimensions[ker11] ;
+    
+    J1 = 0.5 * Join[IdentityMatrix[nn1], Reverse[IdentityMatrix[nn1]]] ;
+    J2 = Join[IdentityMatrix[nn1], ConstantArray[0,{nn1, nn1}]] ;
+    J3 = Reverse[IdentityMatrix[2*nn1]] ;
+
+    ker1max = Max[Abs[ker11]] ;  (* this is so critical for preserving sparse component *) 
+    
+    ker1  = ker11 / ker1max ;
+    ker2  = Sqrt[1 - ker1.^2] ;
+    ker4  = [{Join[ker1, Reverse[ker1]], Join[-Reverse[ker2], flipud(Reverse[ker2]}] ;
+    
+    ker4  = ker4 / Norm[ker4] ;
+    
+    
+    If[mode>=1, ker41 = ker4 - alpha * J3 ;]  (* normal mode for inverse computation *)
+    If[mode==0, ker41 = ker4 ; ];             (* rank_reduction process *)
+    
+    
+    r4inv = rpinv[type, ker41, alpha] ;
+    ker1inv = J1 * r4inv * J2 ;   (* good inverse compuation *)
+        
+                                  (* nested computation mode *)
+    If[nestmode==1,
+        p1 = ker1inv * ker11 ;
+        ker1inv = rpinv[type, p1,0] * ker1inv ;
+    ] ;
+    
+    ker1inv = ker1inv / Norm[ker1inv * ker11] ;
+
+    return [{ker1inv}] ;
+    ] ;
+    
+
+rpinv[type_, ker1_, alpha1_] := Module[
+     {n1, n2, alpha2, s3, v3, d3, vcc, svv4, vd3. ker1inv},
+
+     {n1, n2} = Dimensions[ker1] ;
+     alpha2 = 1e-6 ; (* 1e-20;  % somehow... this must be determined from the given ker1_matrix *)
+
+     {s3, v3, d3} = SingularValueDecomposition[ker1] ;
+     {vcc} = DiagonalMatrix[v3] ;
+     
+     Do[
+        If[vcc[[i]] > alpha2,
+           If[type==0,
+               svv4   = (1 + alpha1 * (1 - alpha1) / (vcc[[i]].^2 + alpha1)) / (1 - 0.5 * alpha1) ; 
+               vd3[[i]] = vcc[[i]]^3 / (vcc[[i]]^2 + alpha1)^2 * svv4^2 ;
+           ] ;
+           If[type==1,
+               vd3[[i]] = vcc[[i]]^3 / (vcc[[i]]^2 + alpha1)^4 * (vcc[[i]]^4 - alpha1^4) ; 
+           ] ;  
+           If[type==2, 
+               vd3[[i]] = vcc[[i]]^3 / (vcc[[i]]^2 + alpha1)^4 * (vcc[[i]]^2 - alpha1^2)^2 ;
+           ] ; 
+           If[typ2==0,
+               vd3[[i]] = vcc[[i]]^3 / (vcc[[i]]^2 + alpha1)^2  ;
+           ]
+        , vd3(i) = 0 ;
+        ]
+     ,{i,1,n1}] ;
+
+     ker1inv = d3 * DiagonalMatrix[vd3] * Transpose[s3] ;
+     ker1inv = ker1inv / Norm[ker1inv * ker1] ;
+
+     return [{ker1inv}] ;
+     ] ;

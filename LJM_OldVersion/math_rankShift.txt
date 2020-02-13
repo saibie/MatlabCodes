@@ -1,0 +1,45 @@
+rankShift[spanmode_, mode_, a1_, alpha_] := Module[
+    {ker1inv, a1shift, a9shift, check9, check1, a1shift, k1inv, k1ret} , 
+    
+    {ker1inv} = quad4inv[0, mode, a1, alpha] ;  (* ring_constraint *)
+    
+    a1shift = a1 * ker1inv * a1 ;     (* principal R-process (feature preservation) *)
+    a1shift = a1shift / Norm[a1shift] ;
+    
+                           (* alternative R-process  *)
+    If[spanmode==1,
+       {a9shift} = shiftSpan[mode, a1, alpha] ;
+       check9 = Norm[a9shift - a1] ;
+       check1 = Norm[a1shift - a1] ;
+    
+       If[check9 < check1, a1shift = a9shift] ; 
+     ] ;
+       
+     {k1inv} = quad4inv[0, mode, a1shift, alpha] ;  (*  rank(k1inv) = rank(a1)  *)    
+    
+     k1ret = a1shift * k1inv * a1shift ;  (* feature preservation *)
+    
+     k1ret = k1ret / Norm[k1ret] ;
+
+     return[{k1ret, a1shift}] ;
+     ];
+    
+
+shiftSpan[mode_, a1_, alpha_] := Module[
+     {ker1inv, a1top, a1zip, norm1, z1inv, a2zip, a1shift},  
+
+     ker1inv = quad4inv[0, mode, a1, alpha] ;  (* ring_constraint *)
+     a1top = quad4inv[0, mode, ker1inv/Norm[ker1inv], alpha] ;
+     a1top = a1top / Norm[a1top] ;
+     a1zip = a1 - a1top ;
+     norm1 = Norm[a1zip] ;
+     z1inv = quad4inv[0, mode, a1zip/norm1, alpha] ;  (* ring_constraint  *)
+     a2zip = a1zip * z1inv * a1zip ;
+     a1shift = a1top + norm1 * a2zip / Norm[a2zip] ;
+     (* a1shift = a1shift * ker1inv * a1shift *) 
+
+     a1shift = a1shift / Norm[a1shift] ;
+
+     return  [{a1shift}] ;
+     ] ;
+

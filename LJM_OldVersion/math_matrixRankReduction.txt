@@ -1,0 +1,57 @@
+matrixRankReduction[a55_, alpha1_, alpha2_, digit1_, digit2_, digit3_] := Module[
+   {mode1, mode2, alphaTune, alphaWork, a1, nn3, nn2, a1max, a1min, a1mean, a11, norma11, a1set, spanmode,
+    a2set, nnk, a2inv, Q, R1, Q1, R11, Q2, R3, a2filter, a55top, Q2, R2, a22corr, gm, ggcorr, a2diff},
+   
+   mode1 = 0 ;   (* matrix rank reduction *)
+   mode2 = 1 ;   (* inverse computation *)
+   
+   alphaTune = alpha1 ; 
+   alphaWork = alpha2 ;
+   
+   a1 = a55 ;
+   {nn3, nn2} = Dimensions[a55] ;
+   
+   a1max = Max[a1] ;
+   a1min = Min[a1] ;
+   a1mean = 0.5 * (1.0 * a1max + 1.0 * a1min) ; (* in case of centerized circle *)
+
+   a11 = a1 - a1mean ;
+   norma11 = norm(a11) ;
+
+   a1set = a11 / norma11 ;
+
+   spanmode = 0 ;  (* 0=A*A'*A, 1=Lagrangian *)
+
+   {a2set} = rank_shift[spanmode, mode1, a1set, alphaTune] ;  (* mode1 = 0 is suitable for lower rank_reduction *)
+
+   nnk = Rank[a2set] ;
+   a2inv = quad4inv[0, mode2, a2set, alphaWork] ;  (* mode2 = 1 is good for inverse computation *)
+
+   {Q, R1} = QRDecomposition[a2inv] ;
+   {Q1, R11} = QRDecomposition[R1 * a2set] ;
+   Q2 = Q * Q1 ;
+   R3 = Transpsoe[Q2] ;  (* confirmed     % R3 = R2 ; no-good  *)
+
+   R3(nnk+1:nn3,:) = 0 ;    (* [R3] *)
+   R3 = round(R3 * digit3) / digit3 ;  (* digit3 = 256 *)
+   
+   a2filter = Transpose[R3] * R3 ;   (* a2inv * a2 *);
+   a2filter = a2filter / Norm[a2filter] ;
+
+   a55pop = Transpose[a2filter * Transpose[a55]] ;
+   
+   {Q, R} = QRDecomposition[a55pop] ;
+   Q2 = Round[Q * digit1] / digit1 ;   (* digit1 = 512    *)
+   R2 = Round[R * digit2] / digit2 ;   (* digit2 = 2048   *)
+                                       (* a2set = Q2 * R2 *)
+
+   a22corr = Transpose[Transpose[a55] - a2filter * Transpose[a55]] ;  (* original signal dependent strip pattern *)
+   gm      = Transpose[Mean[Transpose[a22corr]]] ;
+   ggcorr  = gm * ConstantArray[1, nn3] ;
+   a2diff  = a22corr - ggcorr ;
+
+                                 (* a2egg = ggcorr + a22diff *)
+
+   return[{Q2, R2, R3, a2diff, gm}] ;
+
+   ] ;
