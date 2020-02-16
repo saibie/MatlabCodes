@@ -8,7 +8,7 @@ function s = CoefficientSearch(A, X, H, jq)
             for q = 0:p
                 for j = 0:k
                     if j+q == jq
-                        S = S + PHIX(X.', H.', p, q) * A(:,:,p+1)' * A(:,:,k+1) * PHIX(X, H, k, j);
+                        S = S + PHIX(X.', H.', p, q) * A(:,:,p+1).' * A(:,:,k+1) * PHIX(X, H, k, j);
                     end
                 end
             end

@@ -156,13 +156,6 @@ function Ss = NewtonPoly(A, X0, class, maxiter, tol, LS_iter, alpha)
             P = Pnomial(X0, A);
             err = norm(P, 'fro');
                 
-            if err <= tol
-                Xs{iter+2} = X0;
-                Hs{iter+1} = H;
-                errs(iter+2) = err;
-                break
-            end
-            
             Xs{iter+2} = X0;
             Hs{iter+1} = H;
             errs(iter+2) = err;
@@ -174,7 +167,7 @@ function Ss = NewtonPoly(A, X0, class, maxiter, tol, LS_iter, alpha)
                 cs = 0;
             end
             
-            if abs(cs - 1) > 1e-16
+            if abs(cs - 1) > 1e-15
                 X0 = X0 - H;
                 H0 = H;
                 P = Pnomial(X0, A);
@@ -203,13 +196,6 @@ function Ss = NewtonPoly(A, X0, class, maxiter, tol, LS_iter, alpha)
                 err = norm(P, 'fro');
             end
                 
-            if err <= tol
-                Xs{iter+2} = X0;
-                Hs{iter+1} = H;
-                errs(iter+2) = err;
-                break
-            end
-            
             Xs{iter+2} = X0;
             Hs{iter+1} = H;
             errs(iter+2) = err;
@@ -242,13 +228,6 @@ function Ss = NewtonPoly(A, X0, class, maxiter, tol, LS_iter, alpha)
                 X0 = X0 - lamb * H;
                 P = Pnomial(X0, A);
                 err = norm(P, 'fro');
-            end
-            
-            if err <= tol
-                Xs{iter+2} = X0;
-                Hs{iter+1} = H;
-                errs(iter+2) = err;
-                break
             end
             
             Xs{iter+2} = X0;

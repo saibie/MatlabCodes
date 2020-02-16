@@ -1,5 +1,5 @@
 clear A m
-m = 20;
+m = 50;
 
 A = MakeGenSingA(m, 4, .0001);
 X0 = zeros(m);
@@ -26,6 +26,10 @@ for i = 1:6
     ax{i} = subplot(2,3,i);
     if ~isempty(Ss{i})
         semilogy(ax{i}, [0:length(Ss{i}{5})-1], Ss{i}{5},'-o');
+    end
+    ax{i}.YLim = [1e-16 10];
+    if i ~= 1
+        ax{i}.XLim = ax{1}.XLim;
     end
 end
 
