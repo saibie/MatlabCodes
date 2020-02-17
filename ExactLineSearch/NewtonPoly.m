@@ -99,7 +99,7 @@ function Ss = NewtonPoly(A, X0, class, maxiter, tol, LS_iter, alpha)
             if iter ~= LS_iter
                 X0 = X0 - H;
                 P = Pnomial(X0, A);
-                err = norm(P, 'fro')
+                err = norm(P, 'fro');
             else
                 pt = zeros(2*n + 1,1);
                 for t = 1:(2*n + 1)
@@ -121,13 +121,6 @@ function Ss = NewtonPoly(A, X0, class, maxiter, tol, LS_iter, alpha)
                 X0 = X0 - lamb * H;
                 P = Pnomial(X0, A);
                 err = norm(P, 'fro');
-            end
-            
-            if err <= tol
-                Xs{iter+2} = X0;
-                Hs{iter+1} = H;
-                errs(iter+2) = err;
-                break
             end
             
             Xs{iter+2} = X0;
