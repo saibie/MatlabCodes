@@ -102,15 +102,15 @@ function Ss = NewtonPoly(A, X0, class, maxiter, tol, LS_iter, alpha)
                 err = norm(P, 'fro');
             else
                 pt = zeros(2*n + 1,1);
-                for t = 1:(2*n + 1)
-                    pt(t) = CoeffiLSearch(A, X0, -H, t);
+                for t = 0:2*n 
+                    pt(t+1) = CoeffiLSearch(A, X0, -H, t);
                 end
                 pt = flip(pt);
 %                 pt = pt/min(abs(pt));
                 ptder = polyder(pt);
                 critic = roots(ptder);
+                critic = critic(critic >= 1 & critic <= 2);
                 val = polyval(pt, critic);
-                val = val(critic >= 1 & critic <= 2);
                 [~, argminval] = min(abs(val));
                 if isempty(val)
                     lamb = 1;
@@ -129,23 +129,24 @@ function Ss = NewtonPoly(A, X0, class, maxiter, tol, LS_iter, alpha)
             
         elseif strcmp(class, 'ELSearch')
             pt = zeros(2*n + 1,1);
-            for t = 1:(2*n + 1)
-                pt(t) = CoeffiLSearch(A, X0, -H, t);
+            for t = 0:2*n
+                pt(t+1) = CoeffiLSearch(A, X0, -H, t);
             end
             pt = flip(pt);
 %             pt = pt/min(abs(pt));
             ptder = polyder(pt);
             critic = roots(ptder);
+            critic = critic(critic >= 1 & critic <= 2);
             val = polyval(pt, critic);
-            val = val(critic >= 1 & critic <= 2);
+%             val = val(critic >= 1 & critic <= 2);
             [~, argminval] = min(abs(val));
             if isempty(val)
-                lamb = 1;
+                lamb{iter+1} = 1;
             else
-                lamb = real(critic(argminval));
+                lamb{iter+1} = real(critic(argminval));
             end
             
-            X0 = X0 - lamb * H;
+            X0 = X0 - lamb{iter+1} * H;
             P = Pnomial(X0, A);
             err = norm(P, 'fro');
                 
